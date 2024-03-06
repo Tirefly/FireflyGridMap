@@ -53,11 +53,11 @@ public:
 
 protected:
 	// 委托-成功结束
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Task")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Task")
 	FGenericGameplayTaskDelegate OnRequestSuccess;
 
 	// 委托-失败结束
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Task")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Task")
 	FGenericGameplayTaskDelegate OnRequestFailed;
 
 public:

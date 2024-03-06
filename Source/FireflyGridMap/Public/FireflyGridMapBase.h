@@ -17,7 +17,7 @@ class FIREFLYGRIDMAP_API AFireflyGridMapBase : public AActor
 
 public:	
 	// Sets default values for this actor's properties
-	AFireflyGridMapBase();
+	AFireflyGridMapBase(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,12 +33,12 @@ public:
 #pragma endregion
 
 
-#pragma region GridMapBase
+#pragma region GridMap
 
 public:
 	// 基础-生成棋盘
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Map")
-	void GenerateGridMap();
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
+	virtual void GenerateGridMap();
 
 	//基础-获取坐标棋格
 	UFUNCTION(BlueprintCallable)
@@ -46,20 +46,24 @@ public:
 
 public:
 	// 基础-棋盘形状
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Map")
-	EGridShape MapShape = EGridShape::None;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
+	EGridShape MapShape = EGridShape::Hexagon;
 
 	// 基础-棋盘单位大小
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Map")
-	float GridSize;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
+	float GridRadius = 90.f;;
 
 	// 基础-棋盘行数
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Map")
-	int32 MapRoll;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
+	int32 MapRoll = 10;
 
 	// 基础-棋盘列数
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Map")
-	int32 MapColumn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
+	int32 MapColumn = 10;
+
+	// 基础-棋盘是否生成碰撞
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
+	bool bCreateCollision = true;
 
 	// 基础-棋盘的棋格
 	UPROPERTY()
@@ -106,8 +110,12 @@ protected:
 
 public:
 	//基础-判断是否在棋格内
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
 	UFireflyGridBase* CheckHitGridOfMap(const FVector& InPosition);
+
+	//基础-获取鼠标对应棋盘的位置
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
+	UFireflyGridBase* CheckMouseCursorGridOfMap();
 
 #pragma endregion
 
@@ -116,12 +124,12 @@ public:
 
 public:
 	// 寻路-A*寻找路径
-	UFUNCTION(BlueprintCallable)
-	bool FindPath(TArray<UFireflyGridBase*>& Path, AActor* InActor, UFireflyGridBase* FromGrid, UFireflyGridBase* ToGrid, int StopSteps = 0);
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
+	bool FindPath(TArray<UFireflyGridBase*>& Path, AActor* InActor, UFireflyGridBase* FromGrid, UFireflyGridBase* ToGrid, int StopSteps = 0) const;
 
 	// 寻路-是否存在路径
-	UFUNCTION(BlueprintCallable)
-	bool IsPathExist(AActor* InActor, UFireflyGridBase* FromGrid, UFireflyGridBase* ToGrid, int StopSteps = 0);
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
+	bool IsPathExist(AActor* InActor, UFireflyGridBase* FromGrid, UFireflyGridBase* ToGrid, int StopSteps = 0) const;
 
 	// 寻路-获取目标点范围内的棋格
 	UFUNCTION()
@@ -134,7 +142,7 @@ public:
 
 public:
 	//模型-生成棋盘模型
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Map")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap")
 	void GenerateGridMeshes();
 
 	//模型-设置棋格材质
@@ -155,19 +163,19 @@ public:
 	class UProceduralMeshComponent* MeshOfMap;
 
 	//模型-通行材质
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Material")
 	UMaterialInterface* PassMaterial;
 
 	//模型-阻挡材质
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Material")
 	UMaterialInterface* BlockMaterial;
 
 	//模型-阻挡材质1
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Material")
 	UMaterialInterface* DebugMaterial1;
 
 	//模型-阻挡材质2
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Material")
 	UMaterialInterface* DebugMaterial2;
 
 #pragma endregion

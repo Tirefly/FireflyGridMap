@@ -3,19 +3,17 @@
 
 #include "FireflyGridBase.h"
 
-#include "FireflyGridMapBase.h"
-
 
 UFireflyGridBase::UFireflyGridBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-void UFireflyGridBase::InitGrid(AFireflyGridMapBase* InGridMap, FVector InLocation, FFireflyGridCoordinate InCoordinate,
-                                float InSize)
+void UFireflyGridBase::InitGrid(AFireflyGridMapBase* InGridMap, const FTransform& InTransform,
+	FFireflyGridCoordinate InCoordinate, float InSize)
 {
 	GridMap = InGridMap;
-	WorldLocation = InLocation;
+	WorldTransform = InTransform;
 	Coordinate = InCoordinate;
 	Size = InSize;
 }
@@ -39,6 +37,16 @@ bool UFireflyGridBase::CanPassGrid(AActor* InActor) const
 	}
 
 	return true;
+}
+
+bool UFireflyGridBase::IsGridCompletelyVacant() const
+{
+	if (PassFlag >= EGridPassFlag::Block)
+	{
+		return false;
+	}
+
+	return ActorsInGrid.Num() > 0;
 }
 
 void UFireflyGridBase::ScheduleGrid(AActor* InActor)

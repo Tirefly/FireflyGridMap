@@ -81,7 +81,7 @@ public:
 		}
 		else if (TargetGrid)
 		{
-			return FRotationMatrix::MakeFromX(TargetGrid->WorldLocation - InLocation).Rotator();
+			return FRotationMatrix::MakeFromX(TargetGrid->WorldTransform.GetLocation() - InLocation).Rotator();
 		}
 		else
 		{
@@ -128,44 +128,44 @@ public:
 
 public:
 	// 设置当前棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Movement")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void SetCurrentGrid(UFireflyGridBase* InGrid);
 
 	// 设置预定棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Movement")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void SetScheduledGrid(UFireflyGridBase* InGrid);
 
 	// 计算当前棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Movement")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void CalculateCurrentGrid();
 
 	// 设置移动路径
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Movement")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void SetMovementPath(TArray<UFireflyGridBase*> InPath, bool bNeedReverse = true);
 
 public:
 	// 当前棋格
-	UPROPERTY(BlueprintReadOnly, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "FireflyGridMap|Movement")
 	UFireflyGridBase* CurrentGrid;
 
 	// 预定棋格
-	UPROPERTY(BlueprintReadOnly, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "FireflyGridMap|Movement")
 	UFireflyGridBase* ScheduledGrid;
 
 	// 移动棋格栈
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Movement")
 	TArray<UFireflyGridBase*> MovementStack;
 
 	// 旋转目标
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Movement")
 	FFireflyGridRotatingTarget RotatingTarget;
 
 	// 移动速度
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Movement")
 	float MaxMoveSpeed = 300.f;
 
 	// 旋转速度
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Movement")
 	float MaxRotationRate = 360.f;
 
 #pragma endregion
@@ -175,19 +175,19 @@ public:
 
 public:
 	// 委托-开始移动时触发
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Movement")
 	FFireflyGridMovementDelegate OnMoveBegin;
 
 	// 委托-到达中间路点时触发
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Movement")
 	FFireflyGridMovementDelegate OnMoveCheckPoint;
 
 	// 委托-到达终点时触发
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Movement")
 	FFireflyGridMovementDelegate OnMoveComplete;
 
 	// 委托-完成旋转
-	UPROPERTY(BlueprintAssignable, Category = "FireflyGrid|Movement")
+	UPROPERTY(BlueprintAssignable, Category = "FireflyGridMap|Movement")
 	FFireflyGridMovementDelegate OnRotateComplete;
 
 #pragma endregion

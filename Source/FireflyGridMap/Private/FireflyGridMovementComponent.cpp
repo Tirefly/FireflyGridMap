@@ -69,7 +69,7 @@ void UFireflyGridMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	FHitResult MoveHit(1.f);
 	float tSpeed = FMath::Max(0.0f, MaxMoveSpeed);
 	FRotator tRotation = UpdatedComponent->GetComponentRotation();
-	FVector tDirection = tNode->WorldLocation - ActorOwner->GetActorLocation();
+	FVector tDirection = tNode->WorldTransform.GetLocation() - ActorOwner->GetActorLocation();
 	float tDistance = tDirection.Size2D();
 	tDirection.Normalize();
 	FVector tMoveDelta;
@@ -77,7 +77,7 @@ void UFireflyGridMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	//设置MoveDelta
 	if (tDistance < DeltaTime * tSpeed)
 	{
-		tMoveDelta = tNode->WorldLocation - ActorOwner->GetActorLocation();
+		tMoveDelta = tNode->WorldTransform.GetLocation() - ActorOwner->GetActorLocation();
 	}
 	else
 	{
@@ -94,7 +94,7 @@ void UFireflyGridMovementComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	//计算当前所在棋格
 	CalculateCurrentGrid();
 	//到达中间路点
-	if ((ActorOwner->GetActorLocation() - tNode->WorldLocation).IsNearlyZero())
+	if ((ActorOwner->GetActorLocation() - tNode->WorldTransform.GetLocation()).IsNearlyZero())
 	{
 		//弹出顶栈
 		MovementStack.Pop();
@@ -175,7 +175,7 @@ void UFireflyGridMovementComponent::CalculateCurrentGrid()
 		return;
 
 	//获取角色位置到当前和下一个棋格的位置，如果举一例位置小于实际半径的距离，则算进入了棋格
-	if (FVector::Dist2D(ActorOwner->GetActorLocation(), tNode->WorldLocation) <= tNode->GetRealRadiusSize())
+	if (FVector::Dist2D(ActorOwner->GetActorLocation(), tNode->WorldTransform.GetLocation()) <= tNode->GetRealRadiusSize())
 	{
 		SetCurrentGrid(tNode);
 	}

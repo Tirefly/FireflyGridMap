@@ -31,6 +31,8 @@ public:
 
 	FFireflyGridCoordinate(int InX, int InY) : X(InX), Y(InY) {}
 
+	FString GetDebugString() const { return FString("(X: ")  + FString::FromInt(X) + FString(", Y: ") + FString::FromInt(Y) + FString(")"); }
+
 	// 重载运算符==，满足TMap中Key的规范
 	FORCEINLINE friend bool operator==(const FFireflyGridCoordinate& Lhs, const FFireflyGridCoordinate& Rhs)
 	{
@@ -85,33 +87,33 @@ public:
 	UFireflyGridBase(const FObjectInitializer& ObjectInitializer);
 
 	// 初始化函数
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
-	virtual void InitGrid(AFireflyGridMapBase* InGridMap, FVector InLocation, FFireflyGridCoordinate InCoordinate, float InSize);
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
+	virtual void InitGrid(AFireflyGridMapBase* InGridMap, const FTransform& InTransform, FFireflyGridCoordinate InCoordinate, float InSize);
 
 	// 获取相邻棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual TArray<UFireflyGridBase*> GetNeighbors();
 
 public:
 	// 棋格大小尺寸
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid")
-	float Size;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
+	float Size = 60.f;
 
 	// 棋格的世界空间坐标
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid")
-	FVector WorldLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
+	FTransform WorldTransform = FTransform::Identity;
 
 	// 棋格在棋盘中的空间坐标
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
 	FFireflyGridCoordinate Coordinate;
 
 	// 棋格的形状
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
 	EGridShape GridShape = EGridShape::None;
 
 	// 所属的棋盘
-	UPROPERTY(Transient, BlueprintReadWrite, Category = "FireflyGrid|Grid")
-	AFireflyGridMapBase* GridMap;
+	UPROPERTY(Transient, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
+	AFireflyGridMapBase* GridMap = nullptr;
 
 #pragma endregion
 
@@ -120,27 +122,31 @@ public:
 
 public:
 	// 寻路-判断棋格是否能通行
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual bool CanPassGrid(AActor* InActor) const;
 
+	// 寻路-判断棋格是否能完全控制
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
+	virtual bool IsGridCompletelyVacant() const;
+
 	// 寻路-Actor预定要经过该棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual void ScheduleGrid(AActor* InActor);
 
 	// 寻路-Actor取消要经过该棋格的预定
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual void CancelScheduleGrid(AActor* InActor);
 
 	// 寻路-Actor进入该棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual void EnterGrid(AActor* InActor);
 
 	// 寻路-Actor离开该棋格
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual void LeaveGrid(AActor* InActor);
 
 	// 寻路-获取两棋格的实际间距半径
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Grid")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual float GetRealRadiusSize() const { return Size; };
 
 	//模型-绘制模型
@@ -155,20 +161,20 @@ public:
 		
 public:
 	// 寻路-该棋格的寻路通信状态
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid")
 	EGridPassFlag PassFlag = EGridPassFlag::Pass;
 
 	// 寻路-棋格中的单位
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Grid")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Grid")
 	TArray<AActor*> ActorsInGrid;
 
 	// 寻路-寻路缓存的导航路径中该棋格的上一个棋格
 	UPROPERTY()
-	UFireflyGridBase* PreGrid;
+	UFireflyGridBase* PreGrid = nullptr;
 
 	// 模型-棋格模型索引
 	UPROPERTY()
-	int MeshIndex;
+	int MeshIndex = -1;
 
 #pragma endregion
 };

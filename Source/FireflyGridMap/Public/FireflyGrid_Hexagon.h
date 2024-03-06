@@ -34,28 +34,28 @@ public:
 
 public:
 	//基础-右上棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* RightUpGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* RightUpGrid = nullptr;
 
 	//基础-右棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* RightGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* RightGrid = nullptr;
 
 	//基础-右下棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* RightDownGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* RightDownGrid = nullptr;
 
 	//基础-左下棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* LeftDownGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* LeftDownGrid = nullptr;
 
 	//基础-左棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* LeftGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* LeftGrid = nullptr;
 
 	//基础-左上棋格
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Grid|Hexagon")
-	UFireflyGrid_Hexagon* LeftUpGrid;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Grid|Hexagon")
+	UFireflyGrid_Hexagon* LeftUpGrid = nullptr;
 
 #pragma endregion
 };

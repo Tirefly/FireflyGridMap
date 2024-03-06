@@ -40,7 +40,7 @@ public:
 
 public:
 	//基础-获取棋盘
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Controller")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Controller")
 	AFireflyGridMapBase* GetBattleMap();
 
 	//基础-刷新选中棋格
@@ -52,11 +52,11 @@ public:
 	FVector GetMouseCursorPosition() const;
 
 	//基础-左键事件
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Controller")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Controller")
 	void HandleLeftClick();
 
 	//基础-右键事件
-	UFUNCTION(BlueprintCallable, Category = "FireflyGrid|Controller")
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Controller")
 	void HandleRightClick();
 
 	//基础-Debug寻路
@@ -77,19 +77,19 @@ public:
 
 public:
 	//基础-当前棋盘
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Controller")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Controller")
 	AFireflyGridMapBase* BattleMap;
 
 	//基础-已选中棋格
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Controller")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Controller")
 	TArray<class UFireflyGridBase*> SelectedGrids;
 
 	//基础-已选中角色
-	UPROPERTY(BlueprintReadWrite, Category = "FireflyGrid|Controller")
+	UPROPERTY(BlueprintReadWrite, Category = "FireflyGridMap|Controller")
 	APawn* SelectedPawn;
 
 	//基础-Debug模式
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGrid|Controller")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap|Controller")
 	EChessDebugMode DebugMode = EChessDebugMode::None;
 
 	//当前MoveToTask

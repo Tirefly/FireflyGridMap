@@ -5,17 +5,24 @@
 
 #include "FireflyGrid_Hexagon.h"
 #include "ProceduralMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 // Sets default values
-AFireflyGridMapBase::AFireflyGridMapBase()
+AFireflyGridMapBase::AFireflyGridMapBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	MeshOfMap = CreateDefaultSubobject<UProceduralMeshComponent>("MeshOfMap");
-	this->SetRootComponent(MeshOfMap);
+	if (MeshOfMap)
+	{
+		SetRootComponent(MeshOfMap);
+		MeshOfMap->bUseAsyncCooking = true;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +49,7 @@ void AFireflyGridMapBase::PostEditChangeProperty(FPropertyChangedEvent& Property
 	//当行、列、大小改变时重新生成棋盘
 	if (PropertyChangedEvent.Property->GetName() == "MapRoll"
 		|| PropertyChangedEvent.Property->GetName() == "MapColumn"
-		|| PropertyChangedEvent.Property->GetName() == "GridSize")
+		|| PropertyChangedEvent.Property->GetName() == "GridRadius")
 	{
 		//重新生成棋盘
 		GenerateGridMap();
@@ -61,7 +68,7 @@ void AFireflyGridMapBase::GenerateGridMap()
 	//重置Map
 	GridsOfMap.Reset();
 	//重新生成棋格
-	GenerateGrids(GridSize, MapRoll, MapColumn);
+	GenerateGrids(GridRadius, MapRoll, MapColumn);
 	//重新生成模型
 	GenerateGridMeshes();
 }
@@ -83,6 +90,11 @@ void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRoll, int 
 	{
 		for (int j = 0; j < InColumn; ++j)
 		{
+			if (i % 2 != 0 && j == InColumn - 1)
+			{
+				continue;
+			}
+
 			//UE中横向坐标轴为Y，纵向坐标轴为X，需要调换在二维坐标系XY的值
 			FFireflyGridCoordinate tHexVector = FFireflyGridCoordinate(j, i);
 			tHexLocation.X = 1.5 * InHexSize * i;
@@ -93,7 +105,7 @@ void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRoll, int 
 			UFireflyGridBase* tGrid = NewObject<UFireflyGrid_Hexagon>(this);
 
 			//棋格初始化
-			tGrid->InitGrid(this, tHexLocation, tHexVector, InHexSize);
+			tGrid->InitGrid(this, FTransform(GetActorRotation(), tHexLocation), tHexVector, InHexSize);
 			GridsOfMap.Add(tHexVector, tGrid);
 		}
 	}
@@ -174,8 +186,8 @@ UFireflyGridBase* AFireflyGridMapBase::CheckHitHexagonGridOfMap(const FVector& I
 	{
 		if (!Grid.Value)
 			continue;
-		const float GridX = FMath::Abs(InPosition.X - Grid.Value->WorldLocation.X);
-		const float GridY = FMath::Abs(InPosition.Y - Grid.Value->WorldLocation.Y);
+		const float GridX = FMath::Abs(InPosition.X - Grid.Value->WorldTransform.GetLocation().X);
+		const float GridY = FMath::Abs(InPosition.Y - Grid.Value->WorldTransform.GetLocation().Y);
 		const float Size = Grid.Value->Size;
 		if (GridX > Size || GridY > FMath::Sqrt(3.f) * 0.5 * Size)
 			continue;
@@ -185,6 +197,12 @@ UFireflyGridBase* AFireflyGridMapBase::CheckHitHexagonGridOfMap(const FVector& I
 			break;
 		}
 	}
+
+	if (tHitGrid)
+	{
+		UKismetSystemLibrary::PrintString(this, tHitGrid->Coordinate.GetDebugString(), true, false);
+	}
+
 	return tHitGrid;
 }
 
@@ -208,8 +226,31 @@ UFireflyGridBase* AFireflyGridMapBase::CheckHitGridOfMap(const FVector& InPositi
 	return tHitGrid;
 }
 
+UFireflyGridBase* AFireflyGridMapBase::CheckMouseCursorGridOfMap()
+{
+	const APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!IsValid(PC))
+	{
+		return nullptr;
+	}
+	
+	FVector WorldLocation, WorldDirection;
+	//屏幕坐标转世界坐标，回传坐标和方向
+	if (PC->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+	{
+		//获取Z轴差值
+		float tScale = GetActorLocation().Z - WorldLocation.Z;
+		tScale /= WorldDirection.Z;
+		WorldLocation += tScale * WorldDirection;
+		
+		return CheckHitGridOfMap(WorldLocation);
+	}
+
+	return nullptr;
+}
+
 bool AFireflyGridMapBase::FindPath(TArray<UFireflyGridBase*>& Path, AActor* InActor, UFireflyGridBase* FromGrid,
-	UFireflyGridBase* ToGrid, int StopSteps)
+	UFireflyGridBase* ToGrid, int StopSteps) const
 {
 	Path.Empty();
 
@@ -311,7 +352,7 @@ bool AFireflyGridMapBase::FindPath(TArray<UFireflyGridBase*>& Path, AActor* InAc
 }
 
 bool AFireflyGridMapBase::IsPathExist(AActor* InActor, UFireflyGridBase* FromGrid, UFireflyGridBase* ToGrid,
-	int StopSteps)
+	int StopSteps) const
 {
 	//回传FindPath的值
 	TArray<UFireflyGridBase*> Path;
@@ -382,7 +423,8 @@ void AFireflyGridMapBase::GenerateGridMeshes()
 			MeshTangents.Add(FProcMeshTangent(Tangent, false));
 
 		//生成索引区块模型
-		MeshOfMap->CreateMeshSection(Index, Vertices, Indecies, Normals, UV1, EmptyArray, EmptyArray, EmptyArray, VertexColors, MeshTangents, false);
+		MeshOfMap->CreateMeshSection(Index, Vertices, Indecies, Normals, UV1, EmptyArray
+			, EmptyArray, EmptyArray, VertexColors, MeshTangents, bCreateCollision);
 		//设置材质
 		ResetGridMaterial(Grid.Value);
 

@@ -41,13 +41,13 @@ void UFireflyGrid_Hexagon::DrawGrid(TArray<FVector>& InVertices, TArray<int32>& 
 	//顶点
 	TArray<FVector> HexVerts;
 	HexVerts.AddUninitialized(7);
-	HexVerts[0] = WorldLocation - InOffset;
-	HexVerts[1] = FVector(Size, 0, 0) + WorldLocation - InOffset;
-	HexVerts[2] = FVector(0.5 * Size, 0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldLocation - InOffset;
-	HexVerts[3] = FVector(-0.5 * Size, 0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldLocation - InOffset;
-	HexVerts[4] = FVector(-Size, 0, 0) + WorldLocation - InOffset;
-	HexVerts[5] = FVector(-0.5 * Size, -0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldLocation - InOffset;
-	HexVerts[6] = FVector(0.5 * Size, -0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldLocation - InOffset;
+	HexVerts[0] = WorldTransform.GetLocation() - InOffset;
+	HexVerts[1] = FVector(Size, 0, 0) + WorldTransform.GetLocation() - InOffset;
+	HexVerts[2] = FVector(0.5 * Size, 0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldTransform.GetLocation() - InOffset;
+	HexVerts[3] = FVector(-0.5 * Size, 0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldTransform.GetLocation() - InOffset;
+	HexVerts[4] = FVector(-Size, 0, 0) + WorldTransform.GetLocation() - InOffset;
+	HexVerts[5] = FVector(-0.5 * Size, -0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldTransform.GetLocation() - InOffset;
+	HexVerts[6] = FVector(0.5 * Size, -0.5 * FMath::Sqrt(3.f) * Size, 0) + WorldTransform.GetLocation() - InOffset;
 
 	//顶点索引
 	TArray<int32> Indices;

@@ -19,37 +19,37 @@ struct  FFireflyGridCoordinate
 	GENERATED_USTRUCT_BODY()
 
 public:
-	// 棋格在棋盘中的X轴坐标
+	// 棋格在棋盘中的列ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 X = 0;
-
-	// 棋格在棋盘中的Y轴坐标
+	int32 CoordX = 0;
+	
+	// 棋格在棋盘中的行ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Y = 0;
+	int32 CoordY = 0;
 
 	FFireflyGridCoordinate() {}
 
-	FFireflyGridCoordinate(int InX, int InY) : X(InX), Y(InY) {}
+	FFireflyGridCoordinate(int InX, int InY) : CoordX(InX), CoordY(InY) {}
 
-	FString GetDebugString() const { return FString("(X: ")  + FString::FromInt(X) + FString(", Y: ") + FString::FromInt(Y) + FString(")"); }
+	FString GetDebugString() const { return FString("(CoordX: ")  + FString::FromInt(CoordX) + FString(", CoordY: ") + FString::FromInt(CoordY) + FString(")"); }
 
 	// 重载运算符==，满足TMap中Key的规范
 	FORCEINLINE friend bool operator==(const FFireflyGridCoordinate& Lhs, const FFireflyGridCoordinate& Rhs)
 	{
-		return (Lhs.X == Rhs.X) && (Lhs.Y == Rhs.Y);
+		return (Lhs.CoordY == Rhs.CoordY) && (Lhs.CoordX == Rhs.CoordX);
 	}
 
 	// 重载运算符+，满足基本加法运算
 	FFireflyGridCoordinate operator+(const FFireflyGridCoordinate& F) const
 	{
-		return FFireflyGridCoordinate(this->X + F.X, this->Y + F.Y);
+		return FFireflyGridCoordinate(this->CoordX + F.CoordX, this->CoordY + F.CoordY);
 	}
 };
 
 
 FORCEINLINE uint32 GetTypeHash(const FFireflyGridCoordinate& Key)
 {
-	return HashCombine(GetTypeHash(Key.X), GetTypeHash(Key.Y));
+	return HashCombine(GetTypeHash(Key.CoordY), GetTypeHash(Key.CoordX));
 }
 
 #pragma endregion
@@ -76,7 +76,7 @@ enum class EGridPassFlag : uint8
 #pragma endregion
 
 
-UCLASS()
+UCLASS(BlueprintType)
 class FIREFLYGRIDMAP_API UFireflyGridBase : public UObject
 {
 	GENERATED_BODY()
@@ -127,7 +127,7 @@ public:
 
 	// 寻路-判断棋格是否能完全控制
 	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
-	virtual bool IsGridCompletelyVacant() const;
+	virtual bool IsGridVacant() const;
 
 	// 寻路-Actor预定要经过该棋格
 	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
@@ -148,6 +148,10 @@ public:
 	// 寻路-获取两棋格的实际间距半径
 	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
 	virtual float GetRealRadiusSize() const { return Size; };
+
+	// 寻路-获取距离该棋格最近的空闲棋格
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Grid")
+	virtual UFireflyGridBase* GetNearestVacantGrid();
 
 	//模型-绘制模型
 	UFUNCTION()

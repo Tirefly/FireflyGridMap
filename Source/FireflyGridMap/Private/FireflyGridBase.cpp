@@ -3,6 +3,8 @@
 
 #include "FireflyGridBase.h"
 
+#include "FireflyGridMapBase.h"
+
 
 UFireflyGridBase::UFireflyGridBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -39,14 +41,13 @@ bool UFireflyGridBase::CanPassGrid(AActor* InActor) const
 	return true;
 }
 
-bool UFireflyGridBase::IsGridCompletelyVacant() const
+bool UFireflyGridBase::IsGridVacant() const
 {
-	if (PassFlag >= EGridPassFlag::Block)
-	{
-		return false;
-	}
-
-	return ActorsInGrid.Num() > 0;
+	// if (PassFlag >= EGridPassFlag::Block)
+	// {
+	// 	return false;
+	// }
+	return ActorsInGrid.Num() <= 0;
 }
 
 void UFireflyGridBase::ScheduleGrid(AActor* InActor)
@@ -83,4 +84,38 @@ void UFireflyGridBase::LeaveGrid(AActor* InActor)
 		ActorsInGrid.Remove(InActor);
 		//GridMap->ResetGridMaterial(this);
 	}
+}
+
+UFireflyGridBase* UFireflyGridBase::GetNearestVacantGrid()
+{
+	if (!IsValid(GridMap))
+    {
+    	return nullptr;
+    }
+    
+    TArray<UFireflyGridBase*> Queue;
+    TSet<UFireflyGridBase*> Visited;
+	
+    Queue.Add(this);
+	Visited.Add(this);
+	
+    while (!Queue.IsEmpty())
+    {
+    	UFireflyGridBase* Current = Queue[0];
+    	Queue.RemoveAt(0);
+    	
+    	if (Current->IsGridVacant())
+    		return Current;
+    	
+    	for (UFireflyGridBase* Neighbor : Current->GetNeighbors())
+    	{
+    		if (!Visited.Contains(Neighbor))
+    		{
+    			Visited.Add(Neighbor);
+    			Queue.Add(Neighbor);
+    		}
+    	}
+    }
+
+	return nullptr;
 }

@@ -55,7 +55,7 @@ public:
 
 	// 基础-棋盘行数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
-	int32 MapRoll = 10;
+	int32 MapRow = 10;
 
 	// 基础-棋盘列数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireflyGridMap")
@@ -66,7 +66,7 @@ public:
 	bool bCreateCollision = true;
 
 	// 基础-棋盘的棋格
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "FireflyGridMap")
 	TMap<FFireflyGridCoordinate, UFireflyGridBase*> GridsOfMap;
 
 #pragma endregion
@@ -77,12 +77,12 @@ public:
 protected:
 	// 基础-生成六边形棋盘的棋格
 	UFUNCTION()
-	void GenerateHexagonGrids(float InHexSize, int InRoll, int InColumn);
+	void GenerateHexagonGrids(float InHexSize, int InRow, int InColumn);
 
 public:
 	// 基础-生成棋盘棋格的执行入口
 	UFUNCTION()
-	void GenerateGrids(float InSize, int InRoll, int InColumn);
+	void GenerateGrids(float InSize, int InRow, int InColumn);
 
 #pragma endregion
 

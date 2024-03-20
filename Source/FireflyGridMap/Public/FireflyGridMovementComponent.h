@@ -131,6 +131,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void SetCurrentGrid(UFireflyGridBase* InGrid);
 
+	// 获取当前棋格
+	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
+	UFireflyGridBase* GetCurrentGrid() const { return CurrentGrid; }
+
 	// 设置预定棋格
 	UFUNCTION(BlueprintCallable, Category = "FireflyGridMap|Movement")
 	void SetScheduledGrid(UFireflyGridBase* InGrid);

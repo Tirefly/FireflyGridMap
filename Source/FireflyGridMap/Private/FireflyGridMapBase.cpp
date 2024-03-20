@@ -38,6 +38,16 @@ void AFireflyGridMapBase::PostInitProperties()
 {
 	Super::PostInitProperties();
 
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	if (GetWorld()->IsGameWorld())
+	{
+		return;
+	}
+	
 	GenerateGridMap();
 }
 
@@ -47,7 +57,7 @@ void AFireflyGridMapBase::PostEditChangeProperty(FPropertyChangedEvent& Property
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	//当行、列、大小改变时重新生成棋盘
-	if (PropertyChangedEvent.Property->GetName() == "MapRoll"
+	if (PropertyChangedEvent.Property->GetName() == "MapRow"
 		|| PropertyChangedEvent.Property->GetName() == "MapColumn"
 		|| PropertyChangedEvent.Property->GetName() == "GridRadius")
 	{
@@ -68,7 +78,7 @@ void AFireflyGridMapBase::GenerateGridMap()
 	//重置Map
 	GridsOfMap.Reset();
 	//重新生成棋格
-	GenerateGrids(GridRadius, MapRoll, MapColumn);
+	GenerateGrids(GridRadius, MapRow, MapColumn);
 	//重新生成模型
 	GenerateGridMeshes();
 }
@@ -83,10 +93,11 @@ UFireflyGridBase* AFireflyGridMapBase::GetGridOfMap(FFireflyGridCoordinate InCoo
 	return nullptr;
 }
 
-void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRoll, int InColumn)
+void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRow, int InColumn)
 {
+	FVector ThisLocation = GetActorLocation();
 	FVector tHexLocation;
-	for (int i = 0; i < InRoll; ++i)
+	for (int i = 0; i < InRow; ++i)
 	{
 		for (int j = 0; j < InColumn; ++j)
 		{
@@ -101,7 +112,7 @@ void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRoll, int 
 			tHexLocation.Y = i % 2 == 0 ? (FMath::Sqrt(3.f) * InHexSize * j)
 				: (FMath::Sqrt(3.f) * InHexSize * j + FMath::Sqrt(3.f) * 0.5 * InHexSize);
 			tHexLocation.Z = 0;
-			tHexLocation += GetActorLocation();
+			tHexLocation += ThisLocation;
 			UFireflyGridBase* tGrid = NewObject<UFireflyGrid_Hexagon>(this);
 
 			//棋格初始化
@@ -111,7 +122,7 @@ void AFireflyGridMapBase::GenerateHexagonGrids(float InHexSize, int InRoll, int 
 	}
 }
 
-void AFireflyGridMapBase::GenerateGrids(float InSize, int InRoll, int InColumn)
+void AFireflyGridMapBase::GenerateGrids(float InSize, int InRow, int InColumn)
 {
 	switch (MapShape)
 	{
@@ -119,7 +130,7 @@ void AFireflyGridMapBase::GenerateGrids(float InSize, int InRoll, int InColumn)
 			break;
 		//六边形棋格
 		case EGridShape::Hexagon:
-			GenerateHexagonGrids(InSize, InRoll, InColumn);
+			GenerateHexagonGrids(InSize, InRow, InColumn);
 			break;
 		default:
 			break;
@@ -137,7 +148,7 @@ void AFireflyGridMapBase::InitHexagonGridMap()
 		UFireflyGrid_Hexagon* tHexGrid = Cast<UFireflyGrid_Hexagon>(a.Value);
 		if (!tHexGrid)
 			continue;
-		FFireflyGridCoordinate tRightUp = a.Key.Y % 2 == 0 ? a.Key + FFireflyGridCoordinate(0, 1) : a.Key + FFireflyGridCoordinate(1, 1);
+		FFireflyGridCoordinate tRightUp = a.Key.CoordX % 2 == 0 ? a.Key + FFireflyGridCoordinate(0, 1) : a.Key + FFireflyGridCoordinate(1, 1);
 		if (GridsOfMap.Contains(tRightUp) && GridsOfMap[tRightUp]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->RightUpGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tRightUp]);
 
@@ -145,11 +156,11 @@ void AFireflyGridMapBase::InitHexagonGridMap()
 		if (GridsOfMap.Contains(tRight) && GridsOfMap[tRight]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->RightGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tRight]);
 
-		FFireflyGridCoordinate tRightDown = a.Key.Y % 2 == 0 ? a.Key + FFireflyGridCoordinate(0, -1) : a.Key + FFireflyGridCoordinate(1, -1);
+		FFireflyGridCoordinate tRightDown = a.Key.CoordX % 2 == 0 ? a.Key + FFireflyGridCoordinate(0, -1) : a.Key + FFireflyGridCoordinate(1, -1);
 		if (GridsOfMap.Contains(tRightDown) && GridsOfMap[tRightDown]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->RightDownGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tRightDown]);
 
-		FFireflyGridCoordinate tLeftDown = a.Key.Y % 2 == 0 ? a.Key + FFireflyGridCoordinate(-1, -1) : a.Key + FFireflyGridCoordinate(0, -1);
+		FFireflyGridCoordinate tLeftDown = a.Key.CoordX % 2 == 0 ? a.Key + FFireflyGridCoordinate(-1, -1) : a.Key + FFireflyGridCoordinate(0, -1);
 		if (GridsOfMap.Contains(tLeftDown) && GridsOfMap[tLeftDown]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->LeftDownGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tLeftDown]);
 
@@ -157,7 +168,7 @@ void AFireflyGridMapBase::InitHexagonGridMap()
 		if (GridsOfMap.Contains(tLeft) && GridsOfMap[tLeft]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->LeftGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tLeft]);
 
-		FFireflyGridCoordinate tLeftUp = a.Key.Y % 2 == 0 ? a.Key + FFireflyGridCoordinate(-1, 1) : a.Key + FFireflyGridCoordinate(0, 1);
+		FFireflyGridCoordinate tLeftUp = a.Key.CoordX % 2 == 0 ? a.Key + FFireflyGridCoordinate(-1, 1) : a.Key + FFireflyGridCoordinate(0, 1);
 		if (GridsOfMap.Contains(tLeftUp) && GridsOfMap[tLeftUp]->IsA(UFireflyGrid_Hexagon::StaticClass()))
 			tHexGrid->LeftUpGrid = Cast<UFireflyGrid_Hexagon>(GridsOfMap[tLeftUp]);
 

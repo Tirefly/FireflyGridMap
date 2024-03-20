@@ -3,6 +3,8 @@
 
 #include "FireflyGrid_Hexagon.h"
 
+#include "FireflyGridMapBase.h"
+
 
 UFireflyGrid_Hexagon::UFireflyGrid_Hexagon(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
